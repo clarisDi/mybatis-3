@@ -33,6 +33,20 @@ import org.junit.jupiter.api.Test;
 class MetaObjectTest {
 
   @Test
+  void test01(){
+    RichType object = new RichType();
+    object.setRichType(new RichType());
+    object.getRichType().setRichMap(new HashMap());
+    object.getRichType().getRichList().add(1,"123");
+
+    MetaObject metaObject = MetaObject.forObject(object,SystemMetaObject.DEFAULT_OBJECT_FACTORY,new CustomBeanWrapperFactory(),new DefaultReflectorFactory());
+    /*Class<?> getterType = metaObject.getObjectWrapper().getGetterType("richType.richList[0]");
+    System.out.println(getterType);*/
+    boolean hasGetter = metaObject.getObjectWrapper().hasGetter("richType.richMap.nihao");
+    System.out.println(hasGetter);
+  }
+
+  @Test
   void shouldGetAndSetField() {
     RichType rich = new RichType();
     MetaObject meta = SystemMetaObject.forObject(rich);
