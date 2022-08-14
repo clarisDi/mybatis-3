@@ -20,8 +20,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.apache.ibatis.reflection.invoker.Invoker;
 import org.junit.jupiter.api.Assertions;
@@ -74,6 +73,7 @@ class ReflectorTest {
   static class Section extends AbstractEntity implements Entity<Long> {
   }
 
+  //Child.class
   @Test
   void shouldResolveSetterParam() {
     ReflectorFactory reflectorFactory = new DefaultReflectorFactory();

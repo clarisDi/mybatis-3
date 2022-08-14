@@ -25,9 +25,13 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 /**
  * @author Clinton Begin
  */
+//实现 ObjectWrapper 接口，ObjectWrapper 抽象类，为子类 BeanWrapper 和 MapWrapper 提供属性值的获取和设置的公用方法。
 public abstract class BaseWrapper implements ObjectWrapper {
 
   protected static final Object[] NO_ARGUMENTS = new Object[0];
+  /**
+   * MetaObject 对象
+   */
   protected final MetaObject metaObject;
 
   protected BaseWrapper(MetaObject metaObject) {

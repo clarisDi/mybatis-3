@@ -48,8 +48,10 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+    //1.获得需要创建的类
     Class<?> classToCreate = resolveInterface(type);
     // we know types are assignable
+    //创建指定类的对象
     return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
   }
 
@@ -57,6 +59,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     try {
       Constructor<T> constructor;
       if (constructorArgTypes == null || constructorArgs == null) {
+        //通过无参构造方法，创建指定类的对象
         constructor = type.getDeclaredConstructor();
         try {
           return constructor.newInstance();
@@ -69,6 +72,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
           }
         }
       }
+      //使用特定构造方法，创建指定类的对象
       constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[0]));
       try {
         return constructor.newInstance(constructorArgs.toArray(new Object[0]));
@@ -81,14 +85,17 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         }
       }
     } catch (Exception e) {
+      //拼接 argTypes
       String argTypes = Optional.ofNullable(constructorArgTypes).orElseGet(Collections::emptyList)
           .stream().map(Class::getSimpleName).collect(Collectors.joining(","));
+      //拼接 argValues
       String argValues = Optional.ofNullable(constructorArgs).orElseGet(Collections::emptyList)
           .stream().map(String::valueOf).collect(Collectors.joining(","));
       throw new ReflectionException("Error instantiating " + type + " with invalid types (" + argTypes + ") or values (" + argValues + "). Cause: " + e, e);
     }
   }
 
+  //对于我们常用的集合接口，返回对应的实现类
   protected Class<?> resolveInterface(Class<?> type) {
     Class<?> classToCreate;
     if (type == List.class || type == Collection.class || type == Iterable.class) {
@@ -105,6 +112,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     return classToCreate;
   }
 
+  //判断是否为 java.util.Collection 的子类
   @Override
   public <T> boolean isCollection(Class<T> type) {
     return Collection.class.isAssignableFrom(type);

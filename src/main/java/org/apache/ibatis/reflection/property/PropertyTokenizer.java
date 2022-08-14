@@ -20,11 +20,35 @@ import java.util.Iterator;
 /**
  * @author Clinton Begin
  */
+//实现 Iterator 接口，属性分词器，支持迭代器的访问方式。
+//举个例子，在访问 "order[0].item[0].name" 时，我们希望拆分成 "order[0]"、"item[0]"、"name" 三段，
+//那么就可以通过 PropertyTokenizer 来实现。
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+  /**
+   * 当前字符串
+   */
   private String name;
+  /**
+   * 索引的 {@link #name} ，因为 {@link #name} 如果存在 {@link #index} 会被更改
+   */
   private final String indexedName;
+  /**
+   * 编号。
+   *
+   * 对于数组 name[0] ，则 index = 0
+   * 对于 Map map[key] ，则 index = key
+   */
   private String index;
+  /**
+   * 剩余字符串
+   */
   private final String children;
+
+  public static void main(String[] args) {
+    String a = "order[0].item[0].name";
+    PropertyTokenizer p = new PropertyTokenizer(a);
+
+  }
 
   public PropertyTokenizer(String fullname) {
     int delim = fullname.indexOf('.');
