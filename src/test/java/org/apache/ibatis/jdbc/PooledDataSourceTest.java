@@ -17,6 +17,7 @@ package org.apache.ibatis.jdbc;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.junit.jupiter.api.Test;
+import sun.misc.ProxyGenerator;
 
 class PooledDataSourceTest extends BaseDataTest {
 
@@ -82,6 +84,17 @@ class PooledDataSourceTest extends BaseDataTest {
   void ShouldReturnRealConnection() throws Exception {
     PooledDataSource ds = createPooledDataSource(JPETSTORE_PROPERTIES);
     Connection c = ds.getConnection();
+
+    //System.out.println(userProxy.getClass().getName());
+    /*try{
+        byte[] bytes = ProxyGenerator.generateProxyClass("$Proxy13",new Class[]{Connection.class});
+        FileOutputStream fos = new FileOutputStream("F://$Proxy13.class");
+        fos.write(bytes);
+    }catch (Exception e){
+        e.printStackTrace();
+    }*/
+
+    System.out.println(c.getClass().getName());
     JDBCConnection realConnection = (JDBCConnection) PooledDataSource.unwrapConnection(c);
     c.close();
   }

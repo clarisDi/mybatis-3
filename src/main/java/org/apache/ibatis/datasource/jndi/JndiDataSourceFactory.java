@@ -29,6 +29,7 @@ import org.apache.ibatis.datasource.DataSourceFactory;
 /**
  * @author Clinton Begin
  */
+//这个数据源的实现是为了能在如 EJB 或应用服务器这类容器中使用，容器可以集中或在外部配置数据源，然后放置一个 JNDI 上下文的引用。
 public class JndiDataSourceFactory implements DataSourceFactory {
 
   public static final String INITIAL_CONTEXT = "initial_context";
@@ -41,13 +42,15 @@ public class JndiDataSourceFactory implements DataSourceFactory {
   public void setProperties(Properties properties) {
     try {
       InitialContext initCtx;
+      //获得系统 Properties 对象
       Properties env = getEnvProperties(properties);
+      //创建 InitialContext 对象
       if (env == null) {
         initCtx = new InitialContext();
       } else {
         initCtx = new InitialContext(env);
       }
-
+      // 从 InitialContext 上下文中，获取 DataSource 对象
       if (properties.containsKey(INITIAL_CONTEXT) && properties.containsKey(DATA_SOURCE)) {
         Context ctx = (Context) initCtx.lookup(properties.getProperty(INITIAL_CONTEXT));
         dataSource = (DataSource) ctx.lookup(properties.getProperty(DATA_SOURCE));

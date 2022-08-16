@@ -27,6 +27,8 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 /**
  * @author Clinton Begin
  */
+//这个数据源的实现只是每次被请求时打开和关闭连接。虽然有点慢，但对于在数据库连接可用性方面没有太高要求的简单应用程序来说，是一个很好的选择。
+// 不同的数据库在性能方面的表现也是不一样的，对于某些数据库来说，使用连接池并不重要，这个配置就很适合这种情形。
 public class UnpooledDataSourceFactory implements DataSourceFactory {
 
   private static final String DRIVER_PROPERTY_PREFIX = "driver.";
@@ -41,14 +43,19 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
   @Override
   public void setProperties(Properties properties) {
     Properties driverProperties = new Properties();
+    // 创建 dataSource 对应的 MetaObject 对象
     MetaObject metaDataSource = SystemMetaObject.forObject(dataSource);
+    // 遍历 properties 属性，初始化到 driverProperties 和 MetaObject 中
     for (Object key : properties.keySet()) {
       String propertyName = (String) key;
+      // 初始化到 driverProperties 中
       if (propertyName.startsWith(DRIVER_PROPERTY_PREFIX)) {
         String value = properties.getProperty(propertyName);
         driverProperties.setProperty(propertyName.substring(DRIVER_PROPERTY_PREFIX_LENGTH), value);
+       // 初始化到 MetaObject 中
       } else if (metaDataSource.hasSetter(propertyName)) {
         String value = (String) properties.get(propertyName);
+        //转化属性
         Object convertedValue = convertValue(metaDataSource, propertyName, value);
         metaDataSource.setValue(propertyName, convertedValue);
       } else {
@@ -67,7 +74,9 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
 
   private Object convertValue(MetaObject metaDataSource, String propertyName, String value) {
     Object convertedValue = value;
+    // 获得该属性的 setting 方法的参数类型
     Class<?> targetType = metaDataSource.getSetterType(propertyName);
+    // 转化
     if (targetType == Integer.class || targetType == int.class) {
       convertedValue = Integer.valueOf(value);
     } else if (targetType == Long.class || targetType == long.class) {
