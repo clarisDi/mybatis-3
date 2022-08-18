@@ -48,11 +48,13 @@ public class JdbcTransactionFactory implements TransactionFactory {
 
   @Override
   public Transaction newTransaction(Connection conn) {
+    // 创建 JdbcTransaction 对象
     return new JdbcTransaction(conn);
   }
 
   @Override
   public Transaction newTransaction(DataSource ds, TransactionIsolationLevel level, boolean autoCommit) {
+    // 创建 JdbcTransaction 对象
     return new JdbcTransaction(ds, level, autoCommit, skipSetAutoCommitOnClose);
   }
 }
