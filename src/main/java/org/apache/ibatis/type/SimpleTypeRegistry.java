@@ -26,8 +26,12 @@ import java.util.Set;
  */
 public class SimpleTypeRegistry {
 
+  /**
+   * 简单类型的集合
+   */
   private static final Set<Class<?>> SIMPLE_TYPE_SET = new HashSet<>();
 
+  // 初始化常用类到 SIMPLE_TYPE_SET 中
   static {
     SIMPLE_TYPE_SET.add(String.class);
     SIMPLE_TYPE_SET.add(Byte.class);

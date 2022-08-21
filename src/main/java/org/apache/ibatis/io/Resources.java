@@ -31,12 +31,17 @@ import java.util.Properties;
  * @author Clinton Begin
  */
 public class Resources {
-
+  /**
+   * ClassLoaderWrapper 对象
+   */
   private static ClassLoaderWrapper classLoaderWrapper = new ClassLoaderWrapper();
 
   /**
    * Charset to use when calling getResourceAsReader.
    * null means use the system default.
+   */
+  /**
+   * 字符集
    */
   private static Charset charset;
 

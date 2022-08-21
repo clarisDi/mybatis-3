@@ -63,7 +63,9 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)
       throws SQLException {
+    // 获得参数对应的处理器
     TypeHandler handler = resolveTypeHandler(parameter, jdbcType);
+    // 使用 handler 设置参数
     handler.setParameter(ps, i, parameter, jdbcType);
   }
 
@@ -92,11 +94,13 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   private TypeHandler<?> resolveTypeHandler(Object parameter, JdbcType jdbcType) {
     TypeHandler<?> handler;
+    // 参数为空，返回 OBJECT_TYPE_HANDLER
     if (parameter == null) {
       handler = OBJECT_TYPE_HANDLER;
-    } else {
+    } else {  // 参数非空，使用参数类型获得对应的 TypeHandler
       handler = typeHandlerRegistrySupplier.get().getTypeHandler(parameter.getClass(), jdbcType);
       // check if handler is null (issue #270)
+      // 获取不到，则使用 OBJECT_TYPE_HANDLER
       if (handler == null || handler instanceof UnknownTypeHandler) {
         handler = OBJECT_TYPE_HANDLER;
       }
@@ -118,6 +122,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
       Integer columnIndex = columnIndexLookup.get(column);
       TypeHandler<?> handler = null;
       if (columnIndex != null) {
+        // 首先，通过 columnIndex 获得 TypeHandler
         handler = resolveTypeHandler(rsmd, columnIndex);
       }
       if (handler == null || handler instanceof UnknownTypeHandler) {
@@ -145,6 +150,8 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   private JdbcType safeGetJdbcTypeForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
     try {
+      // 从 ResultSetMetaData 中，获得字段类型
+      // 获得 JDBC Type
       return JdbcType.forCode(rsmd.getColumnType(columnIndex));
     } catch (Exception e) {
       return null;
@@ -153,6 +160,8 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   private Class<?> safeGetClassForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
     try {
+      // 从 ResultSetMetaData 中，获得字段类型
+      // 获得 Java Type
       return Resources.classForName(rsmd.getColumnClassName(columnIndex));
     } catch (Exception e) {
       return null;

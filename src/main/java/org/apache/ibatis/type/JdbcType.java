@@ -16,6 +16,7 @@
 package org.apache.ibatis.type;
 
 import java.sql.Types;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,6 +85,15 @@ public enum JdbcType {
 
   public static JdbcType forCode(int code)  {
     return codeLookup.get(code);
+  }
+
+  public static void main(String[] args) {
+    /*JdbcType[] jt = JdbcType.class.getEnumConstants();
+    for (JdbcType j : jt) {
+      System.out.println(j + "=======index:::" + j.ordinal());
+    }*/
+    Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
+    System.out.println(jdbcTypeHandlerMap);
   }
 
 }
