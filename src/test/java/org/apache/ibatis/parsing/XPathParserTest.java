@@ -21,6 +21,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,6 +35,28 @@ import org.xml.sax.InputSource;
 
 class XPathParserTest {
   private String resource = "resources/nodelet_test.xml";
+
+  @Test
+  void myTest() throws Exception {
+
+    try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
+      XPathParser parser = new XPathParser(inputStream, false, null, null);
+      //testEvalMethod(parser);
+      XNode xNode = parser.evalNode("/environments");
+      //System.out.println(xNode.getChildrenAsProperties());
+      //System.out.println(xNode.getStringAttribute("resource"));
+      //for(XNode child : xNode.getChildren()){
+        //System.out.println(child.getName());
+        //System.out.println(child.evalNode("dataSource").getStringAttribute("type"));
+        //System.out.println(child.evalNode("dataSource").getChildrenAsProperties());
+      //}
+      System.out.println(xNode.getChildren().size());
+      //System.out.println(xNode.getChildren().size());
+      /*XNode first_name = xNode.evalNode("setting");
+      System.out.println(first_name);
+      System.out.println(first_name.getChildrenAsProperties());*/
+    }
+  }
 
   // InputStream Source
   @Test

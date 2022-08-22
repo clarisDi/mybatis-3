@@ -92,8 +92,9 @@ public enum JdbcType {
     for (JdbcType j : jt) {
       System.out.println(j + "=======index:::" + j.ordinal());
     }*/
-    Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
-    System.out.println(jdbcTypeHandlerMap);
+    /*Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
+    System.out.println(jdbcTypeHandlerMap);*/
+    System.out.println(JdbcType.valueOf("TIME_WITH_TIMEZONE"));
   }
 
 }
