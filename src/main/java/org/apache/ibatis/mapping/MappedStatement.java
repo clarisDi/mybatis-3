@@ -32,29 +32,91 @@ import org.apache.ibatis.session.Configuration;
  * @author Clinton Begin
  */
 public final class MappedStatement {
-
+  /**
+   * 资源引用的地址
+   */
   private String resource;
+  /**
+   * Configuration 对象
+   */
   private Configuration configuration;
+  /**
+   * 编号
+   */
   private String id;
   private Integer fetchSize;
   private Integer timeout;
+  /**
+   * 语句类型
+   */
   private StatementType statementType;
+  /**
+   * 结果集类型
+   */
   private ResultSetType resultSetType;
+  /**
+   * SqlSource 对象
+   */
   private SqlSource sqlSource;
+  /**
+   * Cache 对象
+   */
   private Cache cache;
+  /**
+   * ParameterMap 对象
+   */
   private ParameterMap parameterMap;
+  /**
+   * ResultMap 集合
+   */
   private List<ResultMap> resultMaps;
+  /**
+   * 将其设置为 true，任何时候只要语句被调用，都会导致本地缓存和二级缓存都会被清空，默认值：false。
+   */
   private boolean flushCacheRequired;
+  /**
+   * 是否使用缓存
+   */
   private boolean useCache;
+  /**
+   * 这个设置仅针对嵌套结果 select 语句适用：如果为 true，就是假设包含了嵌套结果集或是分组了，这样的话当返回一个主结果行的时候，就不会发生有对前面结果集的引用的情况。这就使得在获取嵌套的结果集的时候不至于导致内存不够用。默认值：false。
+   */
   private boolean resultOrdered;
+  /**
+   * SQL 语句类型
+   */
   private SqlCommandType sqlCommandType;
+  /**
+   * KeyGenerator 对象
+   */
   private KeyGenerator keyGenerator;
+  /**
+   * （仅对 insert 和 update 有用）唯一标记一个属性，MyBatis 会通过 getGeneratedKeys 的返回值或者通过 insert 语句的 selectKey 子元素设置它的键值，默认：unset。如果希望得到多个生成的列，也可以是逗号分隔的属性名称列表。
+   */
   private String[] keyProperties;
+  /**
+   * （仅对 insert 和 update 有用）通过生成的键值设置表中的列名，这个设置仅在某些数据库（像 PostgreSQL）是必须的，当主键列不是表中的第一列的时候需要设置。如果希望得到多个生成的列，也可以是逗号分隔的属性名称列表。
+   */
   private String[] keyColumns;
+  /**
+   * 是否有内嵌的 ResultMap
+   */
   private boolean hasNestedResultMaps;
+  /**
+   * 数据库标识
+   */
   private String databaseId;
+  /**
+   * Log 对象
+   */
   private Log statementLog;
+  /**
+   * LanguageDriver 对象
+   */
   private LanguageDriver lang;
+  /**
+   * 这个设置仅对多结果集的情况适用，它将列出语句执行后返回的结果集并每个结果集给一个名称，名称是逗号分隔的。
+   */
   private String[] resultSets;
 
   MappedStatement() {
@@ -302,13 +364,17 @@ public final class MappedStatement {
   }
 
   public BoundSql getBoundSql(Object parameterObject) {
+    // 获得 BoundSql 对象
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+    // 忽略，因为 <parameterMap /> 已经废弃
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     if (parameterMappings == null || parameterMappings.isEmpty()) {
       boundSql = new BoundSql(configuration, boundSql.getSql(), parameterMap.getParameterMappings(), parameterObject);
     }
 
     // check for nested result maps in parameter mappings (issue #30)
+    // 判断传入的参数中，是否有内嵌的结果 ResultMap 。如果有，则修改 hasNestedResultMaps 为 true
+    // 存储过程相关，暂时无视
     for (ParameterMapping pm : boundSql.getParameterMappings()) {
       String rmId = pm.getResultMapId();
       if (rmId != null) {

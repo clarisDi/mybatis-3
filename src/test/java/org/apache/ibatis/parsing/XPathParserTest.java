@@ -21,7 +21,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.Arrays;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -31,10 +33,189 @@ import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.io.Resources;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 class XPathParserTest {
   private String resource = "resources/nodelet_test.xml";
+
+  class Person{
+    String firstName;
+    String lastName;
+    String career;
+    String gender;
+    Integer age;
+    Integer salary;
+
+    public Person(String firstName, String lastName, String career, String gender, Integer age, Integer salary) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+      this.career = career;
+      this.gender = gender;
+      this.age = age;
+      this.salary = salary;
+    }
+
+    public String getFirstName() {
+      return firstName;
+    }
+
+    public String getLastName() {
+      return lastName;
+    }
+
+    public String getCareer() {
+      return career;
+    }
+
+    public String getGender() {
+      return gender;
+    }
+
+    public Integer getAge() {
+      return age;
+    }
+
+    public Integer getSalary() {
+      return salary;
+    }
+
+    @Override
+    public String toString() {
+      return "Person{" +
+        "firstName='" + firstName + '\'' +
+        ", lastName='" + lastName + '\'' +
+        ", career='" + career + '\'' +
+        ", gender='" + gender + '\'' +
+        ", age=" + age +
+        ", salary=" + salary +
+        '}';
+    }
+  }
+
+  @Test
+  void myTest1(){
+    /*String[] atp = {"Rafael Nadal", "Novak Djokovic",
+      "Stanislas Wawrinka",
+      "David Ferrer","Roger Federer",
+      "Andy Murray","Tomas Berdych",
+      "Juan Martin Del Potro"};
+    List<String> players =  Arrays.asList(atp);
+
+    // 以前的循环方式
+    for (String player : players) {
+      System.out.print(player + "; ");
+    }
+    System.out.println();
+    // 使用 lambda 表达式以及函数操作(functional operation)
+    players.forEach((player) -> System.out.print(player + "; "));
+    System.out.println();
+    // 在 Java 8 中使用双冒号操作符(double colon operator)
+    players.forEach(System.out::println);*/
+
+    /*String[] players = {"Rafael Nadal", "Novak Djokovic",
+      "Stanislas Wawrinka", "David Ferrer",
+      "Roger Federer", "Andy Murray",
+      "Tomas Berdych", "Juan Martin Del Potro",
+      "Richard Gasquet", "John Isner"};*/
+
+    //通过map操作，可以改变流中元素的类型，以下代码将String流映射成了Integer流
+    List<String> strList = Arrays.asList("stream", "map", "flatMap");
+
+    /* 将字符串列表转成长度列表 */
+    /*List<Integer> hashCodeList = strList.stream()
+      .map(String::length)
+      .collect(Collectors.toList());
+    System.out.println(hashCodeList);*/
+
+    /* 性能优化点，避免装箱 */
+    /*int[] hashCodeArr = strList.stream()
+      .mapToInt(String::length)
+      .toArray();
+    System.out.println(Arrays.toString(hashCodeArr));*/
+
+    /* 选出所有的字符，并去重 */
+
+    List<String[]> contextStrList = strList.stream()
+      .map(str -> str.split(""))
+      .distinct()
+      .collect(Collectors.toList());
+    System.out.println(Arrays.deepToString(contextStrList.toArray()));
+
+    List<String> contextList = strList.stream()
+      .map(str -> str.split(""))
+      .flatMap(strArr -> Arrays.stream(strArr))
+      .distinct()
+      .collect(Collectors.toList());
+    System.out.println(Arrays.toString(contextList.toArray()));
+    /*  flatMap的效果是映射成流的内容
+    [s, t, r, e, a, m, p, f, l, M] */
+
+    // 1.1 使用匿名内部类根据 name 排序 players
+    /*Arrays.sort(players, new Comparator<String>() {
+      @Override
+      public int compare(String s1, String s2) {
+        return (s1.compareTo(s2));
+      }
+    });*/
+    /*Arrays.sort(players, String::compareTo);
+    System.out.println(Arrays.asList(players));*/
+
+    /*List<Person> javaProgrammers = new ArrayList<Person>() {
+      {
+        add(new Person("Elsdon", "Jaycob", "Java programmer", "male", 43, 2000));
+        add(new Person("Tamsen", "Brittany", "Java programmer", "female", 23, 1500));
+        add(new Person("Floyd", "Donny", "Java programmer", "male", 33, 1800));
+        add(new Person("Sindy", "Jonie", "Java programmer", "female", 32, 1600));
+        add(new Person("Vere", "Hervey", "Java programmer", "male", 22, 1200));
+        add(new Person("Maude", "Jaimie", "Java programmer", "female", 27, 1900));
+        add(new Person("Shawn", "Randall", "Java programmer", "male", 30, 2300));
+        add(new Person("Jayden", "Corrina", "Java programmer", "female", 35, 1700));
+        add(new Person("Palmer", "Dene", "Java programmer", "male", 33, 2000));
+        add(new Person("Addison", "Pam", "Java programmer", "female", 34, 1300));
+      }
+    };
+
+    List<Person> phpProgrammers = new ArrayList<Person>() {
+      {
+        add(new Person("Jarrod", "Pace", "PHP programmer", "male", 34, 1550));
+        add(new Person("Clarette", "Cicely", "PHP programmer", "female", 23, 1200));
+        add(new Person("Victor", "Channing", "PHP programmer", "male", 32, 1600));
+        add(new Person("Tori", "Sheryl", "PHP programmer", "female", 21, 1000));
+        add(new Person("Osborne", "Shad", "PHP programmer", "male", 32, 1100));
+        add(new Person("Rosalind", "Layla", "PHP programmer", "female", 25, 1300));
+        add(new Person("Fraser", "Hewie", "PHP programmer", "male", 36, 1100));
+        add(new Person("Quinn", "Tamara", "PHP programmer", "female", 21, 1000));
+        add(new Person("Alvin", "Lance", "PHP programmer", "male", 38, 1600));
+        add(new Person("Evonne", "Shari", "PHP programmer", "female", 40, 1800));
+      }
+    };*/
+
+    /*System.out.println(javaProgrammers);
+    System.out.println(phpProgrammers);*/
+    //javaProgrammers.forEach((p) -> System.out.printf("%s %s %s %n",p.getFirstName(),p.getLastName(),p.getSalary() + p.getSalary() * 0.05));
+    /*List<Person> sortedJavaProgrammers = phpProgrammers.stream().filter(p -> p.getSalary() > 1400).collect(Collectors.toList());
+    sortedJavaProgrammers.forEach((p) -> System.out.printf("%s %s %n",p.getFirstName(),p.getLastName()));*/
+    /*System.out.println("根据 name 排序,并显示前5个 Java programmers:");
+    List<Person> sortedJavaProgrammers = javaProgrammers
+      .stream()
+      //.sorted((p, p2) -> (p.getFirstName().compareTo(p2.getFirstName())))
+      .sorted(Comparator.comparing(Person::getFirstName))
+      .limit(5)
+      .collect(Collectors.toList());
+
+    sortedJavaProgrammers.forEach((p) -> System.out.printf("%s %s; %n", p.getFirstName(), p.getLastName()));
+
+    System.out.println("根据 salary 排序 Java programmers:");
+    sortedJavaProgrammers = javaProgrammers
+      .stream()
+      .sorted( (p, p2) -> (p.getSalary() - p2.getSalary()) )
+      .collect( Collectors.toList());
+
+    sortedJavaProgrammers.forEach((p) -> System.out.printf("%s %s; %n", p.getFirstName(), p.getLastName()));*/
+  }
 
   @Test
   void myTest() throws Exception {
@@ -42,7 +223,7 @@ class XPathParserTest {
     try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
       XPathParser parser = new XPathParser(inputStream, false, null, null);
       //testEvalMethod(parser);
-      XNode xNode = parser.evalNode("/environments");
+      XNode xNode = parser.evalNode("/sql");
       //System.out.println(xNode.getChildrenAsProperties());
       //System.out.println(xNode.getStringAttribute("resource"));
       //for(XNode child : xNode.getChildren()){
@@ -50,11 +231,31 @@ class XPathParserTest {
         //System.out.println(child.evalNode("dataSource").getStringAttribute("type"));
         //System.out.println(child.evalNode("dataSource").getChildrenAsProperties());
       //}
-      System.out.println(xNode.getChildren().size());
+      //System.out.println(xNode.getChildren().size());
       //System.out.println(xNode.getChildren().size());
       /*XNode first_name = xNode.evalNode("setting");
       System.out.println(first_name);
       System.out.println(first_name.getChildrenAsProperties());*/
+      //System.out.println(xNode.getNode().getNodeType()  == Node.ELEMENT_NODE);
+      //System.out.println("include".equals(xNode.getNode().getNodeName()));
+      //System.out.println(xNode.getChildren().size());
+     /* NodeList children = xNode.getNode().getChildNodes();
+      for (int i = 0; i < children.getLength(); i++) {
+        //System.out.println(children.item(i).getNodeType() == Node.ELEMENT_NODE);
+        if("include".equals(children.item(i).getNodeName())){
+          System.out.println(children.item(i).getAttributes().getNamedItem("refid").getNodeValue());
+        }
+      }*/
+      //System.out.println(children);
+
+      NamedNodeMap attributes = xNode.getNode().getAttributes();
+      /*for (int i = 0; i < attributes.getLength(); i++) {
+        Node attr = attributes.item(i);
+        System.out.println(attr);
+        //attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
+      }*/
+      //System.out.println(xNode.getNode().getChildNodes().item(0).getNodeValue());
+      System.out.println(xNode.getNode().getChildNodes().item(0).getOwnerDocument());
     }
   }
 

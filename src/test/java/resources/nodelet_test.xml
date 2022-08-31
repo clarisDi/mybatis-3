@@ -40,7 +40,7 @@
   <setting name="aggressiveLazyLoading" value="false"/>55
 </settings>
 -->
-<environments default="development">
+<!--<environments default="development">
   <environment id="development">
     <transactionManager type="JDBC">
       <property name="..." value="..."/>
@@ -52,4 +52,13 @@
       <property name="password" value="${password}"/>
     </dataSource>
   </environment>
-</environments>
+</environments>-->
+<!--<select id="testForInclude">
+  SELECT * FROM subject
+  <include refid="${target_sql}" />
+</select>-->
+<sql id="123" lang="${cpu}">
+${cpu}
+aoteman
+qqqq
+</sql>

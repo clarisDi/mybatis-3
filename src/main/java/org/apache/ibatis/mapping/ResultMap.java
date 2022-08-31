@@ -32,22 +32,60 @@ import org.apache.ibatis.reflection.ParamNameUtil;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 结果集，例如 <resultMap /> 解析后的对象
+ *
  * @author Clinton Begin
  */
 public class ResultMap {
+  /**
+   * Configuration 对象
+   */
   private Configuration configuration;
 
   private String id;
   private Class<?> type;
+  /**
+   * ResultMapping 集合
+   */
   private List<ResultMapping> resultMappings;
+  /**
+   * ID ResultMapping 集合
+   *
+   * 当 idResultMappings 为空时，使用 {@link #resultMappings} 赋值
+   */
   private List<ResultMapping> idResultMappings;
+  /**
+   * 构造方法 ResultMapping 集合
+   *
+   * 和 {@link #propertyResultMappings} 只有一个值
+   */
   private List<ResultMapping> constructorResultMappings;
+  /**
+   * 属性 ResultMapping 集合
+   */
   private List<ResultMapping> propertyResultMappings;
+  /**
+   * 数据库的字段集合
+   */
   private Set<String> mappedColumns;
+  /**
+   * Java 对象的属性集合
+   */
   private Set<String> mappedProperties;
   private Discriminator discriminator;
+  /**
+   * 是否有内嵌的 ResultMap
+   */
   private boolean hasNestedResultMaps;
+  /**
+   * 是否有内嵌的查询
+   */
   private boolean hasNestedQueries;
+  /**
+   * 是否开启自动匹配
+   *
+   * 如果设置这个属性，MyBatis将会为这个ResultMap开启或者关闭自动映射。这个属性会覆盖全局的属性 autoMappingBehavior。默认值为：unset。
+   */
   private Boolean autoMapping;
 
   private ResultMap() {
@@ -79,6 +117,11 @@ public class ResultMap {
       return resultMap.type;
     }
 
+    /**
+     * 构造 ResultMap 对象
+     *
+     * @return ResultMap 对象
+     */
     public ResultMap build() {
       if (resultMap.id == null) {
         throw new IllegalArgumentException("ResultMaps must have an id");
@@ -90,8 +133,11 @@ public class ResultMap {
       resultMap.propertyResultMappings = new ArrayList<>();
       final List<String> constructorArgNames = new ArrayList<>();
       for (ResultMapping resultMapping : resultMap.resultMappings) {
+        // 初始化 hasNestedQueries
         resultMap.hasNestedQueries = resultMap.hasNestedQueries || resultMapping.getNestedQueryId() != null;
+        // 初始化 hasNestedResultMaps
         resultMap.hasNestedResultMaps = resultMap.hasNestedResultMaps || (resultMapping.getNestedResultMapId() != null && resultMapping.getResultSet() == null);
+        // 添加到 mappedColumns
         final String column = resultMapping.getColumn();
         if (column != null) {
           resultMap.mappedColumns.add(column.toUpperCase(Locale.ENGLISH));
@@ -103,25 +149,30 @@ public class ResultMap {
             }
           }
         }
+        // 添加到 mappedProperties
         final String property = resultMapping.getProperty();
         if (property != null) {
           resultMap.mappedProperties.add(property);
         }
+        // 初始化 constructorResultMappings
         if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
           resultMap.constructorResultMappings.add(resultMapping);
           if (resultMapping.getProperty() != null) {
             constructorArgNames.add(resultMapping.getProperty());
           }
-        } else {
+        } else {  // 初始化 propertyResultMappings
           resultMap.propertyResultMappings.add(resultMapping);
         }
+        // 初始化 idResultMappings
         if (resultMapping.getFlags().contains(ResultFlag.ID)) {
           resultMap.idResultMappings.add(resultMapping);
         }
       }
+      // 保证 idResultMappings 非空
       if (resultMap.idResultMappings.isEmpty()) {
         resultMap.idResultMappings.addAll(resultMap.resultMappings);
       }
+      // 将 constructorResultMappings 排序成符合的构造方法的参数顺序
       if (!constructorArgNames.isEmpty()) {
         final List<String> actualArgNames = argNamesOfMatchingConstructor(constructorArgNames);
         if (actualArgNames == null) {
@@ -130,6 +181,7 @@ public class ResultMap {
               + resultMap.getType().getName() + "' by arg names " + constructorArgNames
               + ". There might be more info in debug log.");
         }
+        // 基于 actualArgNames ，将 constructorResultMappings 排序
         resultMap.constructorResultMappings.sort((o1, o2) -> {
           int paramIdx1 = actualArgNames.indexOf(o1.getProperty());
           int paramIdx2 = actualArgNames.indexOf(o2.getProperty());
@@ -146,10 +198,14 @@ public class ResultMap {
     }
 
     private List<String> argNamesOfMatchingConstructor(List<String> constructorArgNames) {
+      // 获得所有构造方法
       Constructor<?>[] constructors = resultMap.type.getDeclaredConstructors();
+      // 遍历所有构造方法
       for (Constructor<?> constructor : constructors) {
         Class<?>[] paramTypes = constructor.getParameterTypes();
+        // 参数数量一致
         if (constructorArgNames.size() == paramTypes.length) {
+          // 获得构造方法的参数名的数组
           List<String> paramNames = getArgNames(constructor);
           if (constructorArgNames.containsAll(paramNames)
               && argTypesMatch(constructorArgNames, paramTypes, paramNames)) {
@@ -160,9 +216,19 @@ public class ResultMap {
       return null;
     }
 
+    /**
+     * 判断构造方法的参数类型是否符合
+     *
+     * @param constructorArgNames 构造方法的参数名数组
+     * @param paramTypes 构造方法的参数类型数组
+     * @param paramNames 声明的参数名数组
+     * @return 是否符合
+     */
     private boolean argTypesMatch(final List<String> constructorArgNames,
         Class<?>[] paramTypes, List<String> paramNames) {
+      // 遍历所有参数名
       for (int i = 0; i < constructorArgNames.size(); i++) {
+        // 判断类型是否匹配
         Class<?> actualType = paramTypes[paramNames.indexOf(constructorArgNames.get(i))];
         Class<?> specifiedType = resultMap.constructorResultMappings.get(i).getJavaType();
         if (!actualType.equals(specifiedType)) {
@@ -179,7 +245,16 @@ public class ResultMap {
       return true;
     }
 
+    /**
+     * 获得构造方法的参数名的数组
+     *
+     * 因为参数上会有 {@link Param} 注解，所以会使用注解上设置的名字
+     *
+     * @param constructor 构造方法
+     * @return 参数名数组
+     */
     private List<String> getArgNames(Constructor<?> constructor) {
+      // 结果
       List<String> paramNames = new ArrayList<>();
       List<String> actualParamNames = null;
       final Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
