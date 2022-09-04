@@ -24,9 +24,13 @@ import org.apache.ibatis.util.MapUtil;
  * @author Frank D. Martinez [mnesarco]
  */
 public class LanguageDriverRegistry {
-
+  /**
+   * LanguageDriver 映射
+   */
   private final Map<Class<? extends LanguageDriver>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<>();
-
+  /**
+   * 默认的 LanguageDriver 类
+   */
   private Class<? extends LanguageDriver> defaultDriverClass;
 
   public void register(Class<? extends LanguageDriver> cls) {
@@ -47,6 +51,7 @@ public class LanguageDriverRegistry {
       throw new IllegalArgumentException("null is not a valid Language Driver");
     }
     Class<? extends LanguageDriver> cls = instance.getClass();
+    // 添加到 LANGUAGE_DRIVER_MAP 中
     if (!LANGUAGE_DRIVER_MAP.containsKey(cls)) {
       LANGUAGE_DRIVER_MAP.put(cls, instance);
     }
@@ -64,6 +69,11 @@ public class LanguageDriverRegistry {
     return defaultDriverClass;
   }
 
+  /**
+   * 设置 {@link #defaultDriverClass}
+   *
+   * @param defaultDriverClass 默认的 LanguageDriver 类
+   */
   public void setDefaultDriverClass(Class<? extends LanguageDriver> defaultDriverClass) {
     register(defaultDriverClass);
     this.defaultDriverClass = defaultDriverClass;

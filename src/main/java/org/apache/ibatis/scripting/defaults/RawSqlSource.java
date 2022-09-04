@@ -34,26 +34,36 @@ import org.apache.ibatis.session.Configuration;
  */
 public class RawSqlSource implements SqlSource {
 
+  /**
+   * SqlSource 对象
+   */
   private final SqlSource sqlSource;
 
   public RawSqlSource(Configuration configuration, SqlNode rootSqlNode, Class<?> parameterType) {
+    // <1> 获得 Sql
     this(configuration, getSql(configuration, rootSqlNode), parameterType);
   }
 
   public RawSqlSource(Configuration configuration, String sql, Class<?> parameterType) {
+    // <2> 创建 SqlSourceBuilder 对象
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> clazz = parameterType == null ? Object.class : parameterType;
+    // <2> 获得 SqlSource 对象
     sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<>());
   }
 
   private static String getSql(Configuration configuration, SqlNode rootSqlNode) {
+    // 创建 DynamicContext 对象
     DynamicContext context = new DynamicContext(configuration, null);
+    // 解析出 SqlSource 对象
     rootSqlNode.apply(context);
+    // 获得 sql
     return context.getSql();
   }
 
   @Override
   public BoundSql getBoundSql(Object parameterObject) {
+    // 获得 BoundSql 对象
     return sqlSource.getBoundSql(parameterObject);
   }
 

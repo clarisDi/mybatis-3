@@ -22,10 +22,12 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
-
+//语言驱动接口
 public interface LanguageDriver {
 
   /**
+   * 创建 ParameterHandler 对象。
+   *
    * Creates a {@link ParameterHandler} that passes the actual parameters to the the JDBC statement.
    *
    * @author Frank D. Martinez [mnesarco]
@@ -38,6 +40,8 @@ public interface LanguageDriver {
   ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);
 
   /**
+   * 创建 SqlSource 对象，从 Mapper XML 配置的 Statement 标签中，即 <select /> 等。
+   *
    * Creates an {@link SqlSource} that will hold the statement read from a mapper xml file.
    * It is called during startup, when the mapped statement is read from a class or an xml file.
    *
@@ -49,6 +53,8 @@ public interface LanguageDriver {
   SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType);
 
   /**
+   * 创建 SqlSource 对象，从方法注解配置，即 @Select 等。
+   *
    * Creates an {@link SqlSource} that will hold the statement read from an annotation.
    * It is called during startup, when the mapped statement is read from a class or an xml file.
    *
